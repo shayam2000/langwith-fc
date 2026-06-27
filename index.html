@@ -302,6 +302,17 @@ option{background:#1c2333;}
 .gallery-lightbox-close{position:fixed;top:20px;right:24px;font-size:32px;color:rgba(255,255,255,0.7);cursor:pointer;line-height:1;z-index:10000;}
 .gallery-lightbox-close:hover{color:#fff;}
 
+/* LEAGUE EDITOR */
+.league-editor-row{display:grid;grid-template-columns:28px 1fr 52px 44px 44px 44px 52px 52px 60px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
+.league-editor-row:last-child{border-bottom:none;}
+.league-editor-head{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:8px 0;border-bottom:2px solid var(--line);display:grid;grid-template-columns:28px 1fr 52px 44px 44px 44px 52px 52px 60px;gap:8px;}
+.le-inp{background:rgba(255,255,255,0.07);border:1px solid var(--line);border-radius:6px;color:var(--white);padding:5px 6px;font-size:12px;font-family:var(--font-mono);text-align:center;width:100%;}
+.le-inp:focus{outline:1px solid var(--gold);}
+.le-team{font-size:13px;font-weight:500;}
+.le-us{color:var(--gold);}
+.le-pos{font-family:var(--font-mono);font-size:12px;color:var(--muted);text-align:center;}
+.le-gd-display{font-family:var(--font-mono);font-size:12px;text-align:center;}
+
 footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:center;font-size:12px;color:var(--muted);}
 
 @media(max-width:700px){
@@ -747,6 +758,17 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
       <table><thead><tr><th>Player</th><th>Position</th><th>Apps</th><th>Goals</th><th>MOTMs</th><th>Action</th></tr></thead>
       <tbody id="squad-table"></tbody></table>
     </div>
+
+    <!-- ── SECTION 4: LEAGUE TABLE EDITOR ── -->
+    <div class="section-head" style="margin-top:48px;"><h3 class="section-title" style="font-size:26px;">🏆 League table editor</h3></div>
+    <div class="info-strip">Update standings after each Powerleague night. GD calculates automatically. <strong>Save league</strong> pushes to everyone instantly.</div>
+    <div class="add-week-form">
+      <div id="league-editor-rows"></div>
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center;">
+        <button class="btn btn-gold" onclick="saveLeague()">💾 Save league</button>
+        <div id="league-save-msg" style="font-size:13px;display:none;"></div>
+      </div>
+    </div>
   </div>
 </div>
 </div>
@@ -867,19 +889,19 @@ const DEFAULT_WEEKS = [
   ]},
 ];
 
-// Live league table from Powerleague screenshot 27 Jun 2026
-const LEAGUE = [
-  {pos:1,team:'Quebrada FC',        p:9,w:9,d:0,l:0,gf:74,ga:23,gd:51, pts:27},
-  {pos:2,team:'Bowcats FC',         p:9,w:7,d:0,l:2,gf:69,ga:31,gd:38, pts:21},
-  {pos:3,team:'MANDEM FC',          p:9,w:7,d:0,l:2,gf:43,ga:20,gd:23, pts:21},
-  {pos:4,team:'FC Bobyor LDN',      p:9,w:6,d:0,l:3,gf:61,ga:30,gd:31, pts:18},
+// League + fixtures now live in STATE (Firebase) so admin can update them live
+const DEFAULT_LEAGUE = [
+  {pos:1,team:'Quebrada FC',        p:9,w:9,d:0,l:0,gf:74,ga:23,gd:51, pts:27,us:false},
+  {pos:2,team:'Bowcats FC',         p:9,w:7,d:0,l:2,gf:69,ga:31,gd:38, pts:21,us:false},
+  {pos:3,team:'MANDEM FC',          p:9,w:7,d:0,l:2,gf:43,ga:20,gd:23, pts:21,us:false},
+  {pos:4,team:'FC Bobyor LDN',      p:9,w:6,d:0,l:3,gf:61,ga:30,gd:31, pts:18,us:false},
   {pos:5,team:'LANGWITH FC',        p:9,w:4,d:0,l:5,gf:33,ga:57,gd:-24,pts:12,us:true},
-  {pos:6,team:'Net Six and Chill',  p:9,w:2,d:0,l:7,gf:37,ga:60,gd:-23,pts:6},
-  {pos:7,team:'Soho Galácticos FC', p:9,w:1,d:0,l:8,gf:28,ga:58,gd:-30,pts:3},
-  {pos:8,team:"Who's Out 2.0 DC",   p:9,w:0,d:0,l:9,gf:21,ga:87,gd:-66,pts:0},
+  {pos:6,team:'Net Six and Chill',  p:9,w:2,d:0,l:7,gf:37,ga:60,gd:-23,pts:6, us:false},
+  {pos:7,team:'Soho Galácticos FC', p:9,w:1,d:0,l:8,gf:28,ga:58,gd:-30,pts:3, us:false},
+  {pos:8,team:"Who's Out 2.0 DC",   p:9,w:0,d:0,l:9,gf:21,ga:87,gd:-66,pts:0, us:false},
 ];
 
-const FIXTURES=[
+const DEFAULT_FIXTURES = [
   {date:'02 Jul',opp:"Who's Out 2.0 DC",  ha:'Away',time:'20:00'},
   {date:'09 Jul',opp:'MANDEM FC',          ha:'Home',time:'18:30'},
   {date:'16 Jul',opp:'Soho Galácticos FC', ha:'Away',time:'20:00'},
@@ -955,8 +977,10 @@ function loadState(){
       STATE = data;
     } else {
       STATE = {
-        players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
-        weeks:   JSON.parse(JSON.stringify(DEFAULT_WEEKS))
+        players:  JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
+        weeks:    JSON.parse(JSON.stringify(DEFAULT_WEEKS)),
+        league:   JSON.parse(JSON.stringify(DEFAULT_LEAGUE)),
+        fixtures: JSON.parse(JSON.stringify(DEFAULT_FIXTURES))
       };
       STATE_REF.set(STATE);
     }
@@ -968,6 +992,9 @@ function loadState(){
       var fresh = snap.val();
       if(fresh && fresh.players && fresh.weeks){
         STATE = fresh;
+        // Back-fill league/fixtures if missing from older saved states
+        if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+        if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
         renderAll();
         if(isAdmin){ renderAdmin(); renderWeekTracker(); }
       }
@@ -1416,6 +1443,68 @@ function removePlayer(name){
   saveState(); renderAll(); renderAdmin();
 }
 
+// ── LEAGUE EDITOR ───────────────────────────────────────────────────────────
+function renderLeagueEditor(){
+  var el = document.getElementById('league-editor-rows');
+  if(!el) return;
+  var league = (STATE.league && STATE.league.length) ? STATE.league : DEFAULT_LEAGUE;
+
+  var headHTML = '<div class="league-editor-head">'+
+    '<span>#</span><span>Team</span><span>Played</span><span>W</span><span>D</span><span>L</span>'+
+    '<span>GF</span><span>GA</span><span>Pts</span></div>';
+
+  var rowsHTML = league.map(function(t, i){
+    var gd = (t.gf||0) - (t.ga||0);
+    var gdCol = gd > 0 ? 'color:#4ade80' : gd < 0 ? 'color:#f87171' : '';
+    return '<div class="league-editor-row">'+
+      '<span class="le-pos">'+(i+1)+'</span>'+
+      '<span class="le-team'+(t.us?' le-us':'')+'">'+t.team+'</span>'+
+      '<input class="le-inp" type="number" min="0" id="le_p_'+i+'" value="'+(t.p||0)+'">'+
+      '<input class="le-inp" type="number" min="0" id="le_w_'+i+'" value="'+(t.w||0)+'" onchange="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_d_'+i+'" value="'+(t.d||0)+'" onchange="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_l_'+i+'" value="'+(t.l||0)+'" onchange="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_gf_'+i+'" value="'+(t.gf||0)+'" onchange="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_ga_'+i+'" value="'+(t.ga||0)+'" onchange="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" id="le_pts_'+i+'" value="'+(t.pts||0)+'">'+
+    '</div>';
+  }).join('');
+
+  el.innerHTML = headHTML + rowsHTML;
+}
+
+function recalcRow(i){
+  // Auto-update pts = W*3 + D when wins/draws change
+  var w   = parseInt(document.getElementById('le_w_'+i).value)||0;
+  var d   = parseInt(document.getElementById('le_d_'+i).value)||0;
+  var ptsEl = document.getElementById('le_pts_'+i);
+  if(ptsEl) ptsEl.value = w*3 + d;
+}
+
+function saveLeague(){
+  var league = (STATE.league && STATE.league.length) ? STATE.league : DEFAULT_LEAGUE;
+  league.forEach(function(t, i){
+    function gv(id){ return parseInt(document.getElementById(id+'_'+i).value)||0; }
+    t.p   = gv('le_p');
+    t.w   = gv('le_w');
+    t.d   = gv('le_d');
+    t.l   = gv('le_l');
+    t.gf  = gv('le_gf');
+    t.ga  = gv('le_ga');
+    t.gd  = t.gf - t.ga;
+    t.pts = gv('le_pts');
+  });
+  // Re-sort by pts desc then GD
+  league.sort(function(a,b){ return b.pts!==a.pts ? b.pts-a.pts : b.gd-a.gd; });
+  league.forEach(function(t,i){ t.pos = i+1; });
+  STATE.league = league;
+  saveState();
+  renderLeague();
+  renderLeagueEditor();
+  var msg = document.getElementById('league-save-msg');
+  if(msg){ msg.textContent='League updated \u2713'; msg.style.color='#4ade80'; msg.style.display='block';
+    setTimeout(function(){ msg.style.display='none'; }, 3000); }
+}
+
 function renderAdmin(){
   // Populate week selector
   var sel = document.getElementById('aw-edit-sel');
@@ -1445,6 +1534,7 @@ function renderAdmin(){
 
   renderPlayerToggles();
   renderWeekTracker();
+  renderLeagueEditor();
 }
 
 // ─── PAYMENT TRACKER ────────────────────────────────────────────────────────
@@ -1616,23 +1706,35 @@ function renderResults(){
 // RENDER: LEAGUE
 // ══════════════════════════════════════════════
 function renderLeague(){
-  document.getElementById('league-table-body').innerHTML=LEAGUE.map(t=>`
-    <div class="league-row${t.us?' us-row':''}">
-      <span class="pos-num">${t.pos}</span>
-      <span style="${t.us?'color:var(--gold);font-weight:600':''}">${t.team}</span>
-      <span>${t.p}</span><span>${t.w}</span><span>${t.d}</span><span>${t.l}</span>
-      <span>${t.gf}</span><span>${t.ga}</span>
-      <span style="${t.gd>0?'color:#4ade80':t.gd<0?'color:#f87171':''}">${t.gd>0?'+':''}${t.gd}</span>
-      <span class="pts-badge">${t.pts}</span>
-    </div>`).join('');
+  var league   = (STATE.league   && STATE.league.length)   ? STATE.league   : DEFAULT_LEAGUE;
+  var fixtures = (STATE.fixtures && STATE.fixtures.length) ? STATE.fixtures : DEFAULT_FIXTURES;
 
-  document.getElementById('fixtures-list').innerHTML=FIXTURES.map(f=>`
-    <div class="fixture-card">
-      <span class="fix-date">${f.date}</span>
-      <span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs ${f.opp}</span>
-      <span class="fix-ha ${f.ha.toLowerCase()}">${f.ha}</span>
-      <span class="fix-time">⏰ ${f.time}</span>
-    </div>`).join('');
+  // Auto-sort by points desc, then GD
+  var sorted = league.slice().sort(function(a,b){
+    if(b.pts !== a.pts) return b.pts - a.pts;
+    return b.gd - a.gd;
+  }).map(function(t,i){ return Object.assign({},t,{pos:i+1}); });
+
+  document.getElementById('league-table-body').innerHTML = sorted.map(function(t){
+    return '<div class="league-row'+(t.us?' us-row':'')+'">'+
+      '<span class="pos-num">'+t.pos+'</span>'+
+      '<span style="'+(t.us?'color:var(--gold);font-weight:600':'')+'">'+t.team+'</span>'+
+      '<span>'+t.p+'</span><span>'+t.w+'</span><span>'+t.d+'</span><span>'+t.l+'</span>'+
+      '<span>'+t.gf+'</span><span>'+t.ga+'</span>'+
+      '<span style="'+(t.gd>0?'color:#4ade80':t.gd<0?'color:#f87171':'')+'">'+
+        (t.gd>0?'+':'')+t.gd+'</span>'+
+      '<span class="pts-badge">'+t.pts+'</span>'+
+    '</div>';
+  }).join('');
+
+  document.getElementById('fixtures-list').innerHTML = fixtures.map(function(f){
+    return '<div class="fixture-card">'+
+      '<span class="fix-date">'+f.date+'</span>'+
+      '<span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs '+f.opp+'</span>'+
+      '<span class="fix-ha '+f.ha.toLowerCase()+'">'+f.ha+'</span>'+
+      '<span class="fix-time">⏰ '+f.time+'</span>'+
+    '</div>';
+  }).join('');
 }
 
 // ══════════════════════════════════════════════
