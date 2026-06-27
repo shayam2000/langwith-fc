@@ -302,6 +302,24 @@ option{background:#1c2333;}
 .gallery-lightbox-close{position:fixed;top:20px;right:24px;font-size:32px;color:rgba(255,255,255,0.7);cursor:pointer;line-height:1;z-index:10000;}
 .gallery-lightbox-close:hover{color:#fff;}
 
+/* GOALS & MOTM GRID */
+.gm-table{border-collapse:collapse;font-size:12px;min-width:600px;}
+.gm-table th{padding:8px 10px;text-align:center;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--line);white-space:nowrap;background:rgba(255,255,255,0.04);}
+.gm-table th.player-col{text-align:left;min-width:110px;}
+.gm-table td{padding:6px 6px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+.gm-table tr:hover td{background:rgba(255,255,255,0.03);}
+.gm-table td.player-name-cell{font-size:12px;font-weight:500;white-space:nowrap;padding-right:12px;}
+.gm-week-cell{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.gm-goals-inp{width:36px;background:rgba(255,255,255,0.08);border:1px solid var(--line);border-radius:4px;color:var(--white);padding:3px 4px;font-size:12px;font-family:var(--font-mono);text-align:center;}
+.gm-goals-inp:focus{outline:1px solid var(--gold);}
+.gm-goals-inp.has-goals{background:rgba(245,200,66,0.15);border-color:rgba(245,200,66,0.4);color:var(--gold);}
+.gm-motm-chk{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;}
+.gm-absent{color:rgba(255,255,255,0.12);font-size:18px;text-align:center;}
+.gm-week-head{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.gm-week-score{font-size:9px;font-weight:700;}
+.gm-week-score.w{color:#4ade80;}
+.gm-week-score.l{color:#f87171;}
+
 /* LEAGUE EDITOR */
 .league-editor-row{display:grid;grid-template-columns:28px 1fr 52px 44px 44px 44px 52px 52px 60px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
 .league-editor-row:last-child{border-bottom:none;}
@@ -759,7 +777,18 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
       <tbody id="squad-table"></tbody></table>
     </div>
 
-    <!-- ── SECTION 4: LEAGUE TABLE EDITOR ── -->
+    <!-- ── SECTION 4: GOALS & MOTM BY WEEK ── -->
+    <div class="section-head" style="margin-top:48px;"><h3 class="section-title" style="font-size:26px;">⚽ Goals &amp; MOTM by week</h3></div>
+    <div class="info-strip">Edit goals and MOTM for any player in any week directly in the grid. Hit <strong>Save goals &amp; MOTM</strong> to push all changes at once.</div>
+    <div style="overflow-x:auto;margin-bottom:16px;">
+      <div id="goals-motm-grid"></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:40px;">
+      <button class="btn btn-gold" onclick="saveGoalsMotm()">💾 Save goals &amp; MOTM</button>
+      <div id="gm-save-msg" style="font-size:13px;display:none;"></div>
+    </div>
+
+    <!-- ── SECTION 5: LEAGUE TABLE EDITOR ── -->
     <div class="section-head" style="margin-top:48px;"><h3 class="section-title" style="font-size:26px;">🏆 League table editor</h3></div>
     <div class="info-strip">Update standings after each Powerleague night. GD calculates automatically. <strong>Save league</strong> pushes to everyone instantly.</div>
     <div class="add-week-form">
@@ -1034,44 +1063,39 @@ function saveState(){
 // DERIVED STATS
 // ══════════════════════════════════════════════
 function getPlayerStats(){
-  const stats = {};
-  STATE.players.forEach(p=>{
-    stats[p.name]={
-      ...p,
-      apps:0,
-      // Use stored season totals as base (from spreadsheet). Weekly entries add on top.
-      goals: p.seasonGoals||0,
-      motm:  p.seasonMotm||0,
-      fees:0
-    };
+  var stats = {};
+  STATE.players.forEach(function(p){
+    stats[p.name] = Object.assign({},p,{apps:0,goals:0,motm:0,fees:0});
   });
-  STATE.weeks.forEach(w=>{
-    w.players.forEach(wp=>{
+
+  var hasWeeklyData = STATE.weeks.some(function(w){
+    return w.players.some(function(wp){ return wp.goals>0 || wp.motm; });
+  });
+
+  STATE.weeks.forEach(function(w){
+    w.players.forEach(function(wp){
       if(!stats[wp.name]) stats[wp.name]={name:wp.name,position:'Unknown',apps:0,goals:0,motm:0,fees:0};
       if(!wp.dnp){
         stats[wp.name].apps++;
-        // Only add per-week goals/motm that are above 0 (entered via admin after the fact)
-        // These are additive on top of the seasonGoals base — avoid double-counting
-        // by only using per-week if admin has entered any non-zero values across all weeks
         stats[wp.name].fees += w.fee;
-      }
-    });
-  });
-  // Check if any per-week goal data has been entered; if so, replace season totals
-  const hasWeeklyGoals = STATE.weeks.some(w=>w.players.some(wp=>wp.goals>0));
-  const hasWeeklyMotm  = STATE.weeks.some(w=>w.players.some(wp=>wp.motm===true));
-  if(hasWeeklyGoals||hasWeeklyMotm){
-    // Recompute goals/motm purely from per-week entries
-    STATE.players.forEach(p=>{ if(stats[p.name]){stats[p.name].goals=0;stats[p.name].motm=0;} });
-    STATE.weeks.forEach(w=>{
-      w.players.forEach(wp=>{
-        if(!wp.dnp && stats[wp.name]){
+        if(hasWeeklyData){
           stats[wp.name].goals += (wp.goals||0);
           if(wp.motm) stats[wp.name].motm++;
         }
-      });
+      }
+    });
+  });
+
+  // Fall back to spreadsheet season totals if no weekly data entered yet
+  if(!hasWeeklyData){
+    STATE.players.forEach(function(p){
+      if(stats[p.name]){
+        stats[p.name].goals = p.seasonGoals||0;
+        stats[p.name].motm  = p.seasonMotm||0;
+      }
     });
   }
+
   return Object.values(stats);
 }
 
@@ -1521,6 +1545,113 @@ function saveLeague(){
     setTimeout(function(){ msg.style.display='none'; }, 3000); }
 }
 
+// ── GOALS & MOTM GRID ───────────────────────────────────────────────────────
+function renderGoalsMotmGrid(){
+  var el = document.getElementById('goals-motm-grid');
+  if(!el) return;
+  var weeks = STATE.weeks;
+  if(!weeks || !weeks.length){ el.innerHTML='<p style="color:var(--muted);font-size:13px;">No weeks logged yet.</p>'; return; }
+
+  // Only show players who appear in at least one week
+  var activePlayers = STATE.players.filter(function(p){
+    return weeks.some(function(w){ return w.players.find(function(wp){ return wp.name===p.name && !wp.dnp; }); });
+  });
+
+  var table = document.createElement('table');
+  table.className = 'gm-table';
+
+  // Header row
+  var thead = document.createElement('thead');
+  var hrow = document.createElement('tr');
+  var th0 = document.createElement('th'); th0.className='player-col'; th0.textContent='Player'; hrow.appendChild(th0);
+  weeks.forEach(function(w, wi){
+    var win = w.lScore > w.oScore;
+    var th = document.createElement('th');
+    th.innerHTML = '<div class="gm-week-head">'+
+      '<span>'+fmtDate(w.date)+'</span>'+
+      '<span class="gm-week-score '+(win?'w':'l')+'">'+w.lScore+'–'+w.oScore+'</span>'+
+    '</div>';
+    hrow.appendChild(th);
+  });
+  thead.appendChild(hrow);
+  table.appendChild(thead);
+
+  // Body rows — one per active player
+  var tbody = document.createElement('tbody');
+  activePlayers.forEach(function(p){
+    var tr = document.createElement('tr');
+    var td0 = document.createElement('td'); td0.className='player-name-cell'; td0.textContent=p.name; tr.appendChild(td0);
+    weeks.forEach(function(w, wi){
+      var wp = w.players.find(function(x){ return x.name===p.name; });
+      var td = document.createElement('td');
+      td.style.textAlign='center';
+      if(!wp || wp.dnp){
+        td.innerHTML='<span class="gm-absent">–</span>';
+      } else {
+        var sid = safeId(p.name);
+        var goals = wp.goals||0;
+        var cell = document.createElement('div');
+        cell.className='gm-week-cell';
+
+        // Goals input
+        var gi = document.createElement('input');
+        gi.type='number'; gi.min='0'; gi.max='20'; gi.value=goals;
+        gi.className='gm-goals-inp'+(goals>0?' has-goals':'');
+        gi.id='gm_g_'+wi+'_'+sid;
+        gi.addEventListener('input', function(){ this.className='gm-goals-inp'+(parseInt(this.value)>0?' has-goals':''); });
+        cell.appendChild(gi);
+
+        // MOTM checkbox
+        var ml = document.createElement('label');
+        ml.style.cssText='font-size:9px;color:var(--muted);display:flex;align-items:center;gap:3px;cursor:pointer;';
+        var mc = document.createElement('input');
+        mc.type='checkbox'; mc.className='gm-motm-chk'; mc.id='gm_m_'+wi+'_'+sid; mc.checked=!!wp.motm;
+        ml.appendChild(mc);
+        ml.appendChild(document.createTextNode('MOTM'));
+        cell.appendChild(ml);
+
+        td.appendChild(cell);
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  el.innerHTML='';
+  el.appendChild(table);
+}
+
+function saveGoalsMotm(){
+  var weeks = STATE.weeks;
+  var activePlayers = STATE.players.filter(function(p){
+    return weeks.some(function(w){ return w.players.find(function(wp){ return wp.name===p.name && !wp.dnp; }); });
+  });
+
+  activePlayers.forEach(function(p){
+    var sid = safeId(p.name);
+    weeks.forEach(function(w, wi){
+      var wp = w.players.find(function(x){ return x.name===p.name; });
+      if(!wp || wp.dnp) return;
+      var gi = document.getElementById('gm_g_'+wi+'_'+sid);
+      var mc = document.getElementById('gm_m_'+wi+'_'+sid);
+      if(gi) wp.goals = parseInt(gi.value)||0;
+      if(mc) wp.motm  = mc.checked;
+    });
+  });
+
+  saveState();
+  renderAll();
+  renderGoalsMotmGrid(); // refresh highlights
+
+  var msg = document.getElementById('gm-save-msg');
+  if(msg){
+    msg.textContent='Goals & MOTM saved \u2713';
+    msg.style.color='#4ade80';
+    msg.style.display='block';
+    setTimeout(function(){ msg.style.display='none'; }, 3000);
+  }
+}
+
 function renderAdmin(){
   // Populate week selector
   var sel = document.getElementById('aw-edit-sel');
@@ -1550,6 +1681,7 @@ function renderAdmin(){
 
   renderPlayerToggles();
   renderWeekTracker();
+  renderGoalsMotmGrid();
   renderLeagueEditor();
 }
 
