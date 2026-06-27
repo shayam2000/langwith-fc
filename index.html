@@ -975,6 +975,15 @@ function loadState(){
     var data = snap.val();
     if(data && data.players && data.weeks){
       STATE = data;
+      // Backfill league/fixtures if this is old data that predates them
+      var dirty = false;
+      if(!STATE.league || !STATE.league.length){
+        STATE.league = JSON.parse(JSON.stringify(DEFAULT_LEAGUE)); dirty = true;
+      }
+      if(!STATE.fixtures || !STATE.fixtures.length){
+        STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES)); dirty = true;
+      }
+      if(dirty) STATE_REF.set(STATE); // push backfilled data to Firebase
     } else {
       STATE = {
         players:  JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
@@ -1447,24 +1456,31 @@ function removePlayer(name){
 function renderLeagueEditor(){
   var el = document.getElementById('league-editor-rows');
   if(!el) return;
-  var league = (STATE.league && STATE.league.length) ? STATE.league : DEFAULT_LEAGUE;
+
+  // Always ensure STATE.league exists — back-fill if missing (e.g. old Firebase data)
+  if(!STATE.league || !STATE.league.length){
+    STATE.league = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+  }
+  if(!STATE.fixtures || !STATE.fixtures.length){
+    STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+  }
+
+  var league = STATE.league;
 
   var headHTML = '<div class="league-editor-head">'+
-    '<span>#</span><span>Team</span><span>Played</span><span>W</span><span>D</span><span>L</span>'+
+    '<span>#</span><span>Team</span><span>P</span><span>W</span><span>D</span><span>L</span>'+
     '<span>GF</span><span>GA</span><span>Pts</span></div>';
 
   var rowsHTML = league.map(function(t, i){
-    var gd = (t.gf||0) - (t.ga||0);
-    var gdCol = gd > 0 ? 'color:#4ade80' : gd < 0 ? 'color:#f87171' : '';
     return '<div class="league-editor-row">'+
       '<span class="le-pos">'+(i+1)+'</span>'+
       '<span class="le-team'+(t.us?' le-us':'')+'">'+t.team+'</span>'+
       '<input class="le-inp" type="number" min="0" id="le_p_'+i+'" value="'+(t.p||0)+'">'+
-      '<input class="le-inp" type="number" min="0" id="le_w_'+i+'" value="'+(t.w||0)+'" onchange="recalcRow('+i+')">'+
-      '<input class="le-inp" type="number" min="0" id="le_d_'+i+'" value="'+(t.d||0)+'" onchange="recalcRow('+i+')">'+
-      '<input class="le-inp" type="number" min="0" id="le_l_'+i+'" value="'+(t.l||0)+'" onchange="recalcRow('+i+')">'+
-      '<input class="le-inp" type="number" min="0" id="le_gf_'+i+'" value="'+(t.gf||0)+'" onchange="recalcRow('+i+')">'+
-      '<input class="le-inp" type="number" min="0" id="le_ga_'+i+'" value="'+(t.ga||0)+'" onchange="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_w_'+i+'" value="'+(t.w||0)+'" oninput="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_d_'+i+'" value="'+(t.d||0)+'" oninput="recalcRow('+i+')">'+
+      '<input class="le-inp" type="number" min="0" id="le_l_'+i+'" value="'+(t.l||0)+'">'+
+      '<input class="le-inp" type="number" min="0" id="le_gf_'+i+'" value="'+(t.gf||0)+'">'+
+      '<input class="le-inp" type="number" min="0" id="le_ga_'+i+'" value="'+(t.ga||0)+'">'+
       '<input class="le-inp" type="number" id="le_pts_'+i+'" value="'+(t.pts||0)+'">'+
     '</div>';
   }).join('');
