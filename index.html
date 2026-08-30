@@ -1183,8 +1183,7 @@ if(FIREBASE_CONFIGURED){
 }
 
 function loadState(){
-
-  // ── Always seed STATE from defaults first so page renders immediately ────
+  // Always seed from defaults immediately — page is usable instantly
   STATE = {
     players:   JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
     weeks:     JSON.parse(JSON.stringify(DEFAULT_WEEKS)),
@@ -1192,61 +1191,44 @@ function loadState(){
     fixtures:  JSON.parse(JSON.stringify(DEFAULT_FIXTURES)),
     opponents: JSON.parse(JSON.stringify(DEFAULT_OPPONENTS))
   };
+  renderAll();
+  calcSim();
 
-  if(!FIREBASE_CONFIGURED){
-    // OFFLINE: try localStorage, fall back to defaults
-    try{
-      var s = localStorage.getItem('lfc_state_v7');
-      if(s){
-        var parsed = JSON.parse(s);
-        STATE = parsed;
-        if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
-        if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
-        if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
-      }
-    } catch(e){}
-      renderAll(); calcSim();
-    return;
-  }
+  // Then try Firebase — only update if it has REAL data (players + weeks with content)
+  if(!FIREBASE_CONFIGURED || !STATE_REF) return;
 
-  // ONLINE: render defaults immediately while Firebase loads
-  renderAll(); calcSim();
-
-  // Then fetch from Firebase and update if data exists
   STATE_REF.once('value').then(function(snap){
     var data = snap.val();
-    if(data && data.players){
-      // Merge Firebase data, always use latest defaults for league/fixtures/opponents
+    
+    // Only use Firebase data if it has actual weeks with players
+    if(data && data.players && data.players.length > 0 && 
+       data.weeks && data.weeks.length > 0){
       STATE = data;
-      if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
-      if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
-      if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
-      if(!STATE.weeks||!STATE.weeks.length) STATE.weeks = JSON.parse(JSON.stringify(DEFAULT_WEEKS));
+      // Always enforce defaults for empty fields
+      if(!STATE.league   ||!STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+      if(!STATE.fixtures ||!STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+      if(!STATE.opponents||!STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
       renderAll();
     } else {
-      // Nothing in Firebase — push full seed
-      STATE_REF.set(STATE).then(function(){
-        console.log('Firebase seeded successfully');
-      }).catch(function(e){ console.error('Firebase seed failed:', e); });
+      // Firebase empty or stale — push our defaults to it
+      STATE_REF.set(STATE).catch(function(e){ console.warn('Firebase write failed:', e); });
     }
 
-    // Live listener for real-time updates
+    // Live listener
     STATE_REF.on('value', function(snap){
       var fresh = snap.val();
-      if(!fresh) return;
+      if(!fresh || !fresh.weeks || !fresh.weeks.length) return; // ignore empty updates
       STATE = fresh;
-      if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
-      if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
-      if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
-      if(!STATE.weeks  || !STATE.weeks.length)  STATE.weeks   = JSON.parse(JSON.stringify(DEFAULT_WEEKS));
-      if(!STATE.players|| !STATE.players.length) STATE.players = JSON.parse(JSON.stringify(DEFAULT_PLAYERS));
+      if(!STATE.league   ||!STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+      if(!STATE.fixtures ||!STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+      if(!STATE.opponents||!STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
+      if(!STATE.players  ||!STATE.players.length)  STATE.players  = JSON.parse(JSON.stringify(DEFAULT_PLAYERS));
       renderAll();
       if(isAdmin){ renderAdmin(); renderWeekTracker(); }
     });
 
   }).catch(function(err){
-    console.error('Firebase error:', err);
-    // Already rendered defaults above — just log and continue
+    console.warn('Firebase unavailable, using defaults:', err);
   });
 }
 
@@ -1333,6 +1315,8 @@ function checkPin(){
     document.getElementById('admin-gate').style.display='none';
     document.getElementById('admin-content').classList.add('on');
     document.getElementById('admin-badge-main').classList.add('on');
+    if(!STATE.players||!STATE.players.length) STATE.players = JSON.parse(JSON.stringify(DEFAULT_PLAYERS));
+    if(!STATE.weeks  ||!STATE.weeks.length)   STATE.weeks   = JSON.parse(JSON.stringify(DEFAULT_WEEKS));
     renderAdmin();
     renderWeekTracker();
   } else {
