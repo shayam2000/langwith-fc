@@ -1280,9 +1280,11 @@ function loadState(){
       var fresh = snap.val();
       if(fresh && fresh.players && fresh.weeks){
         STATE = fresh;
-        // Back-fill league/fixtures if missing from older saved states
-        if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
-        if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+        var dirty = false;
+        if(!STATE.league   || !STATE.league.length)   { STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));   dirty=true; }
+        if(!STATE.fixtures || !STATE.fixtures.length) { STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES)); dirty=true; }
+        if(!STATE.opponents|| !STATE.opponents.length){ STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS)); dirty=true; }
+        if(dirty) STATE_REF.update({league:STATE.league, fixtures:STATE.fixtures, opponents:STATE.opponents});
         renderAll();
         if(isAdmin){ renderAdmin(); renderWeekTracker(); }
       }
@@ -1903,16 +1905,36 @@ function saveGoalsMotm(){
 }
 
 function resetLeagueAndFixtures(){
+  // Force overwrite league, fixtures and opponents directly — bypasses any cached state
   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
   STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
   STATE.opponents = JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
-  saveState();
-  renderLeague();
-  renderLeagueEditor();
-  renderOpponentList();
-  populateOppDropdown();
-  var msg = document.getElementById('lf-reset-msg');
-  if(msg){ msg.textContent='League & fixtures updated ✓'; msg.style.display='inline'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
+
+  // Write directly to Firebase ref if connected, otherwise localStorage
+  if(FIREBASE_CONFIGURED && STATE_REF){
+    STATE_REF.update({
+      league:   STATE.league,
+      fixtures: STATE.fixtures,
+      opponents: STATE.opponents
+    }).then(function(){
+      renderLeague();
+      renderLeagueEditor();
+      renderOpponentList();
+      populateOppDropdown();
+      var msg = document.getElementById('lf-reset-msg');
+      if(msg){ msg.textContent='✓ League & fixtures pushed to Firebase!'; msg.style.display='inline'; setTimeout(function(){ msg.style.display='none'; },4000); }
+    }).catch(function(e){
+      alert('Firebase error: '+e.message+'\nTry the Clear old data button instead.');
+    });
+  } else {
+    saveState();
+    renderLeague();
+    renderLeagueEditor();
+    renderOpponentList();
+    populateOppDropdown();
+    var msg = document.getElementById('lf-reset-msg');
+    if(msg){ msg.textContent='✓ Updated!'; msg.style.display='inline'; setTimeout(function(){ msg.style.display='none'; },3000); }
+  }
 }
 
 function clearOldSeason(){
@@ -2217,8 +2239,12 @@ function renderResults(){
 // RENDER: LEAGUE
 // ══════════════════════════════════════════════
 function renderLeague(){
-  var league   = (STATE.league   && STATE.league.length)   ? STATE.league   : DEFAULT_LEAGUE;
-  var fixtures = (STATE.fixtures && STATE.fixtures.length) ? STATE.fixtures : DEFAULT_FIXTURES;
+  var league   = (STATE.league   && STATE.league.length   > 0) ? STATE.league   : DEFAULT_LEAGUE;
+  var fixtures = (STATE.fixtures && STATE.fixtures.length > 0) ? STATE.fixtures : DEFAULT_FIXTURES;
+
+  // If still empty after fallback, force-use defaults
+  if(!league || !league.length)   league   = DEFAULT_LEAGUE;
+  if(!fixtures || !fixtures.length) fixtures = DEFAULT_FIXTURES;
 
   // Auto-sort by points desc, then GD
   var sorted = league.slice().sort(function(a,b){
