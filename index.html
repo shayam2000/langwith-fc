@@ -1218,88 +1218,77 @@ let STATE_REF = null;
 if(FIREBASE_CONFIGURED){
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
-  STATE_REF = db.ref('lfc/season2');
+  STATE_REF = db.ref('lfc/state');
 }
 
 function loadState(){
   var overlay = document.getElementById('fb-loading');
 
+  // ── Always seed STATE from defaults first so page renders immediately ────
+  STATE = {
+    players:   JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
+    weeks:     JSON.parse(JSON.stringify(DEFAULT_WEEKS)),
+    league:    JSON.parse(JSON.stringify(DEFAULT_LEAGUE)),
+    fixtures:  JSON.parse(JSON.stringify(DEFAULT_FIXTURES)),
+    opponents: JSON.parse(JSON.stringify(DEFAULT_OPPONENTS))
+  };
+
   if(!FIREBASE_CONFIGURED){
-    // ── OFFLINE MODE: use localStorage ──────────────────────────────────────
+    // OFFLINE: try localStorage, fall back to defaults
     try{
-      var s = localStorage.getItem('lfc_state_s3');
-      STATE = s ? JSON.parse(s) : {
-        players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
-        weeks:   JSON.parse(JSON.stringify(DEFAULT_WEEKS))
-      };
-      if(!s) saveState();
-    } catch(e){
-      STATE = {
-        players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
-        weeks:   JSON.parse(JSON.stringify(DEFAULT_WEEKS))
-      };
-    }
-    if(overlay) overlay.style.display = 'none';
-    renderAll();
-    calcSim();
+      var s = localStorage.getItem('lfc_state_v6');
+      if(s){
+        var parsed = JSON.parse(s);
+        STATE = parsed;
+        if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+        if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+        if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
+      }
+    } catch(e){}
+    if(overlay) overlay.style.display='none';
+    renderAll(); calcSim();
     return;
   }
 
-  // ── ONLINE MODE: use Firebase ────────────────────────────────────────────
-  var msg = document.getElementById('fb-loading-msg');
-  if(msg) msg.textContent = 'Loading team data…';
+  // ONLINE: render defaults immediately while Firebase loads
+  if(overlay) overlay.style.display='none';
+  renderAll(); calcSim();
 
+  // Then fetch from Firebase and update if data exists
   STATE_REF.once('value').then(function(snap){
     var data = snap.val();
-    if(data && data.players && data.weeks){
+    if(data && data.players){
+      // Merge Firebase data, always use latest defaults for league/fixtures/opponents
       STATE = data;
-      // Backfill league/fixtures if this is old data that predates them
-      var dirty = false;
-      if(!STATE.league || !STATE.league.length){
-        STATE.league = JSON.parse(JSON.stringify(DEFAULT_LEAGUE)); dirty = true;
-      }
-      if(!STATE.fixtures || !STATE.fixtures.length){
-        STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES)); dirty = true;
-      }
-      if(dirty) STATE_REF.set(STATE); // push backfilled data to Firebase
+      if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+      if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+      if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
+      if(!STATE.weeks) STATE.weeks = [];
+      renderAll();
     } else {
-      STATE = {
-        players:   JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
-        weeks:     JSON.parse(JSON.stringify(DEFAULT_WEEKS)),
-        league:    JSON.parse(JSON.stringify(DEFAULT_LEAGUE)),
-        fixtures:  JSON.parse(JSON.stringify(DEFAULT_FIXTURES)),
-        opponents: JSON.parse(JSON.stringify(DEFAULT_OPPONENTS))
-      };
-      STATE_REF.set(STATE);
+      // Nothing in Firebase — push full seed
+      STATE_REF.set(STATE).then(function(){
+        console.log('Firebase seeded successfully');
+      }).catch(function(e){ console.error('Firebase seed failed:', e); });
     }
-    if(overlay) overlay.style.display = 'none';
-    renderAll();
-    calcSim();
-    // Live updates for all connected clients
+
+    // Live listener for real-time updates
     STATE_REF.on('value', function(snap){
       var fresh = snap.val();
-      if(fresh && fresh.players && fresh.weeks){
-        STATE = fresh;
-        var dirty = false;
-        if(!STATE.league   || !STATE.league.length)   { STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));   dirty=true; }
-        if(!STATE.fixtures || !STATE.fixtures.length) { STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES)); dirty=true; }
-        if(!STATE.opponents|| !STATE.opponents.length){ STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS)); dirty=true; }
-        if(dirty) STATE_REF.update({league:STATE.league, fixtures:STATE.fixtures, opponents:STATE.opponents});
-        renderAll();
-        if(isAdmin){ renderAdmin(); renderWeekTracker(); }
-      }
+      if(!fresh) return;
+      STATE = fresh;
+      if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+      if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+      if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
+      if(!STATE.weeks)   STATE.weeks   = [];
+      if(!STATE.players) STATE.players = JSON.parse(JSON.stringify(DEFAULT_PLAYERS));
+      renderAll();
+      if(isAdmin){ renderAdmin(); renderWeekTracker(); }
     });
+
   }).catch(function(err){
     console.error('Firebase error:', err);
-    // Fallback to localStorage on error
-    try{ var s=localStorage.getItem('lfc_state_s3'); if(s) STATE=JSON.parse(s); } catch(e){}
-    if(!STATE.players) STATE = {
-      players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
-      weeks:   JSON.parse(JSON.stringify(DEFAULT_WEEKS))
-    };
-    if(overlay) overlay.style.display = 'none';
-    renderAll();
-    calcSim();
+    // Already rendered defaults above — just log and continue
   });
 }
 
@@ -1307,7 +1296,7 @@ function saveState(){
   if(FIREBASE_CONFIGURED && STATE_REF){
     STATE_REF.set(STATE).catch(function(e){ console.error('Firebase save failed:', e); });
   } else {
-    try{ localStorage.setItem('lfc_state_s3', JSON.stringify(STATE)); } catch(e){}
+    try{ localStorage.setItem('lfc_state_v6', JSON.stringify(STATE)); } catch(e){}
   }
 }
 
