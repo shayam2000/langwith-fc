@@ -1221,7 +1221,7 @@ function loadState(){
       if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
       if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
       if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
-      if(!STATE.weeks) STATE.weeks = [];
+      if(!STATE.weeks||!STATE.weeks.length) STATE.weeks = JSON.parse(JSON.stringify(DEFAULT_WEEKS));
       renderAll();
     } else {
       // Nothing in Firebase — push full seed
@@ -1238,8 +1238,8 @@ function loadState(){
       if(!STATE.league   || !STATE.league.length)   STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
       if(!STATE.fixtures || !STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
       if(!STATE.opponents|| !STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
-      if(!STATE.weeks)   STATE.weeks   = [];
-      if(!STATE.players) STATE.players = JSON.parse(JSON.stringify(DEFAULT_PLAYERS));
+      if(!STATE.weeks  || !STATE.weeks.length)  STATE.weeks   = JSON.parse(JSON.stringify(DEFAULT_WEEKS));
+      if(!STATE.players|| !STATE.players.length) STATE.players = JSON.parse(JSON.stringify(DEFAULT_PLAYERS));
       renderAll();
       if(isAdmin){ renderAdmin(); renderWeekTracker(); }
     });
