@@ -1081,95 +1081,43 @@ const DEFAULT_PLAYERS = [
   {name:'Louis',  position:'Goalkeeper', seasonGoals:0, seasonMotm:1},
   {name:'Tomi',   position:'Forward',    seasonGoals:0, seasonMotm:0},
   {name:'Jude',   position:'Defender',   seasonGoals:0, seasonMotm:0},
+  {name:'Dom',    position:'Forward',    seasonGoals:0, seasonMotm:0},
 ];
 
 // Each week: players who appear played. 'paid' reflects number=paid, x=unpaid from spreadsheet.
 // Goals/motm seeded as 0 here — enter via admin per week. Season totals hardcoded in getPlayerStats override.
 const DEFAULT_WEEKS = [
-  {date:'2026-04-30',lScore:2,oScore:9,opp:'(Opponent)',fee:7.2,players:[
-    {name:'Shayam',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Hameed',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Joshua',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kacper',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Jay',   goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-05-07',lScore:8,oScore:5,opp:'(Opponent)',fee:8.1,players:[
-    {name:'Theo',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Hameed',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Joshua',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Jay',   goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-05-14',lScore:5,oScore:4,opp:'(Opponent)',fee:8.1,players:[
-    {name:'Shayam',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Theo',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kunaal',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Jay',   goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-05-21',lScore:3,oScore:4,opp:'MANDEM FC',fee:7.2,players:[
-    {name:'Shayam',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Fergus',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Hameed',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Joshua',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kacper',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Louis', goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-05-28',lScore:4,oScore:3,opp:'Soho Galácticos FC',fee:8.1,players:[
-    {name:'Shayam',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Hameed',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kacper',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Jay',   goals:0,motm:false,dnp:false,paid:false},
-    {name:'Tomi',  goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-06-04',lScore:1,oScore:15,opp:'FC Bobyor LDN',fee:8.1,players:[
-    {name:'Shayam',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kunaal',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Fergus',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Hameed',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tomi',  goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-06-11',lScore:4,oScore:10,opp:'Quebrada FC',fee:11.4,players:[
-    {name:'Theo',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:true},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kacper',goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-06-18',lScore:3,oScore:5,opp:'Bowcats FC',fee:7.42,players:[
-    {name:'Theo',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:false},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Arthur',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Hameed',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Stefan',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Kacper',goals:0,motm:false,dnp:false,paid:true},
-  ]},
-  {date:'2026-06-25',lScore:3,oScore:2,opp:'Net Six and Chill',fee:6.86,players:[
-    {name:'Shayam',goals:0,motm:false,dnp:false,paid:true},
-    {name:'Theo',  goals:0,motm:false,dnp:false,paid:true},
-    {name:'Tobi',  goals:0,motm:false,dnp:false,paid:false},
-    {name:'Amith', goals:0,motm:false,dnp:false,paid:false},
-    {name:'Dineth',goals:0,motm:false,dnp:false,paid:false},
-    {name:'Kacper',goals:0,motm:false,dnp:false,paid:false},
+  {date:'2026-08-13',lScore:7,oScore:5,opp:'Bowcats FC',fee:9.30,players:[
+    {name:'Shayam',goals:0,motm:false,dnp:false,paid:false},
+    {name:'Theo',  goals:0,motm:false,dnp:false,paid:false},
     {name:'Louis', goals:0,motm:false,dnp:false,paid:false},
-    {name:'Jude',  goals:0,motm:false,dnp:false,paid:false},
+    {name:'Kunaal',goals:0,motm:false,dnp:false,paid:false},
+    {name:'Fergus',goals:3,motm:false,dnp:false,paid:false},
+    {name:'Arthur',goals:2,motm:false,dnp:false,paid:false},
+    {name:'Kacper',goals:2,motm:true, dnp:false,paid:false},
+  ]},
+  {date:'2026-08-20',lScore:1,oScore:2,opp:'EY 7s',fee:8.10,players:[
+    {name:'Shayam', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Louis',  goals:0,motm:false,dnp:false,paid:false},
+    {name:'Dineth', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Joshua', goals:1,motm:false,dnp:false,paid:false},
+    {name:'Kacper', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Amith',  goals:0,motm:false,dnp:false,paid:false},
+    {name:'Kunaal', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Hameed', goals:0,motm:false,dnp:false,paid:false},
+  ]},
+  {date:'2026-08-27',lScore:2,oScore:7,opp:'MANDEM FC',fee:5.90,players:[
+    {name:'Shayam', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Theo',   goals:0,motm:false,dnp:false,paid:false},
+    {name:'Dineth', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Joshua', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Louis',  goals:0,motm:false,dnp:false,paid:false},
+    {name:'Kacper', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Fergus', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Arthur', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Hameed', goals:0,motm:false,dnp:false,paid:false},
+    {name:'Dom',    goals:1,motm:false,dnp:false,paid:false},
+    {name:'Tobi',   goals:1,motm:false,dnp:false,paid:false},
   ]},
 ];
 
@@ -1248,7 +1196,7 @@ function loadState(){
   if(!FIREBASE_CONFIGURED){
     // OFFLINE: try localStorage, fall back to defaults
     try{
-      var s = localStorage.getItem('lfc_state_v6');
+      var s = localStorage.getItem('lfc_state_v7');
       if(s){
         var parsed = JSON.parse(s);
         STATE = parsed;
@@ -1306,7 +1254,7 @@ function saveState(){
   if(FIREBASE_CONFIGURED && STATE_REF){
     STATE_REF.set(STATE).catch(function(e){ console.error('Firebase save failed:', e); });
   } else {
-    try{ localStorage.setItem('lfc_state_v6', JSON.stringify(STATE)); } catch(e){}
+    try{ localStorage.setItem('lfc_state_v7', JSON.stringify(STATE)); } catch(e){}
   }
 }
 
