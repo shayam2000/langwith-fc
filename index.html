@@ -1,12 +1,4 @@
-const DEFAULT_OPPONENTS = [
-  'MANDEM FC',
-  'FC Bobyor LDN',
-  'EY 7s',
-  'BTS FC',
-  'Soho Galácticos FC',
-  'Quebrada FC',
-  'Bowcats FC',
-];<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -475,10 +467,31 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
   <div class="league-card">
     <div class="league-header"><span style="font-size:20px;">🏆</span><h3>League Table</h3><span style="font-size:12px;color:var(--muted);margin-left:auto;">After 4 rounds</span></div>
     <div class="league-row league-head" style="border-top:none;"><div>#</div><div>Team</div><div>P</div><div>W</div><div>D</div><div>L</div><div>GF</div><div>GA</div><div>GD</div><div>Pts</div></div>
-    <div id="league-table-body"></div>
+    <div id="league-table-body">
+<div class="league-row us-row"><span class="pos-num">1</span><span style="color:var(--gold);font-weight:600">MANDEM FC</span><span>4</span><span>4</span><span>0</span><span>0</span><span>19</span><span>5</span><span style="color:#4ade80">+14</span><span class="pts-badge">12</span></div>
+<div class="league-row"><span class="pos-num">1</span><span>FC Bobyor LDN</span><span>4</span><span>4</span><span>0</span><span>0</span><span>26</span><span>17</span><span style="color:#4ade80">+9</span><span class="pts-badge">12</span></div>
+<div class="league-row"><span class="pos-num">3</span><span>EY 7s</span><span>4</span><span>3</span><span>0</span><span>1</span><span>13</span><span>9</span><span style="color:#4ade80">+4</span><span class="pts-badge">9</span></div>
+<div class="league-row us-row"><span class="pos-num">4</span><span style="color:var(--gold);font-weight:600">LANGWITH FC</span><span>4</span><span>2</span><span>0</span><span>2</span><span>15</span><span>14</span><span style="color:#4ade80">+1</span><span class="pts-badge">6</span></div>
+<div class="league-row"><span class="pos-num">5</span><span>BTS FC</span><span>2</span><span>1</span><span>0</span><span>1</span><span>4</span><span>8</span><span style="color:#f87171">-4</span><span class="pts-badge">3</span></div>
+<div class="league-row"><span class="pos-num">6</span><span>Soho Galácticos FC</span><span>4</span><span>1</span><span>0</span><span>3</span><span>10</span><span>15</span><span style="color:#f87171">-5</span><span class="pts-badge">3</span></div>
+<div class="league-row"><span class="pos-num">7</span><span>Quebrada FC</span><span>4</span><span>0</span><span>1</span><span>3</span><span>11</span><span>15</span><span style="color:#f87171">-4</span><span class="pts-badge">1</span></div>
+<div class="league-row"><span class="pos-num">8</span><span>Bowcats FC</span><span>4</span><span>0</span><span>1</span><span>3</span><span>16</span><span>21</span><span style="color:#f87171">-5</span><span class="pts-badge">1</span></div>
+    </div>
+    <div class="section-head" style="margin-top:32px;"><h2 class="section-title">Upcoming Fixtures</h2></div>
   </div>
   <div class="section-head" style="margin-top:32px;"><h2 class="section-title">Upcoming Fixtures</h2></div>
-  <div id="fixtures-list"></div>
+  <div id="fixtures-list">
+<div class="fixture-card"><span class="fix-date">03 Sep</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs Soho Galácticos FC</span><span class="fix-ha home">Home</span><span class="fix-time">⏰ 20:00</span></div>
+<div class="fixture-card"><span class="fix-date">10 Sep</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs FC Bobyor LDN</span><span class="fix-ha away">Away</span><span class="fix-time">⏰ 20:45</span></div>
+<div class="fixture-card"><span class="fix-date">17 Sep</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs Quebrada FC</span><span class="fix-ha home">Home</span><span class="fix-time">⏰ 20:00</span></div>
+<div class="fixture-card"><span class="fix-date">24 Sep</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs BTS FC</span><span class="fix-ha away">Away</span><span class="fix-time">⏰ 20:45</span></div>
+<div class="fixture-card"><span class="fix-date">01 Oct</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs Bowcats FC</span><span class="fix-ha home">Home</span><span class="fix-time">⏰ 18:30</span></div>
+<div class="fixture-card"><span class="fix-date">08 Oct</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs EY 7s</span><span class="fix-ha away">Away</span><span class="fix-time">⏰ 20:00</span></div>
+<div class="fixture-card"><span class="fix-date">15 Oct</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs MANDEM FC</span><span class="fix-ha home">Home</span><span class="fix-time">⏰ 20:00</span></div>
+<div class="fixture-card"><span class="fix-date">22 Oct</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs Soho Galácticos FC</span><span class="fix-ha away">Away</span><span class="fix-time">⏰ 20:00</span></div>
+<div class="fixture-card"><span class="fix-date">29 Oct</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs FC Bobyor LDN</span><span class="fix-ha home">Home</span><span class="fix-time">⏰ 20:00</span></div>
+<div class="fixture-card"><span class="fix-date">05 Nov</span><span class="fix-teams"><span style="color:var(--gold)">Langwith FC</span> vs Quebrada FC</span><span class="fix-ha away">Away</span><span class="fix-time">⏰ 20:00</span></div>
+    </div>
 </div>
 </div>
 
@@ -907,7 +920,13 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
           <label>Opponent</label>
           <select class="sel" id="aw-opp-sel" style="width:100%;" onchange="syncOppField()">
             <option value="">— Select —</option>
-            <!-- populated dynamically from STATE.opponents -->
+            <option>MANDEM FC</option>
+            <option>FC Bobyor LDN</option>
+            <option>EY 7s</option>
+            <option>BTS FC</option>
+            <option>Soho Galácticos FC</option>
+            <option>Quebrada FC</option>
+            <option>Bowcats FC</option>
             <option value="__custom__">Other / new team…</option>
           </select>
         </div>
@@ -2219,16 +2238,19 @@ function renderResults(){
 // RENDER: LEAGUE
 // ══════════════════════════════════════════════
 function renderLeague(){
-  // Always start from DEFAULT_LEAGUE — only use STATE if it has valid populated data
-  var league = DEFAULT_LEAGUE;
-  var fixtures = DEFAULT_FIXTURES;
+  // Only re-render if STATE has real league data from admin edits
+  // Otherwise leave the hard-coded HTML in place
+  var hasRealLeague = STATE.league && Array.isArray(STATE.league) && STATE.league.length > 0 
+    && STATE.league[0].team && STATE.league[0].team !== 'Team 2'
+    && STATE.league[0].team !== 'LANGWITH FC'; // ignore single-team placeholder
 
-  if(STATE.league && Array.isArray(STATE.league) && STATE.league.length > 0 && STATE.league[0].team && STATE.league[0].team !== 'Team 2'){
-    league = STATE.league;
-  }
-  if(STATE.fixtures && Array.isArray(STATE.fixtures) && STATE.fixtures.length > 0 && STATE.fixtures[0].opp){
-    fixtures = STATE.fixtures;
-  }
+  var league = hasRealLeague ? STATE.league : null;
+  var fixtures = (STATE.fixtures && Array.isArray(STATE.fixtures) && STATE.fixtures.length > 0 && STATE.fixtures[0].opp) ? STATE.fixtures : null;
+
+  // If no valid data from Firebase, keep hard-coded HTML untouched
+  if(!league && !fixtures) return;
+  if(!league) league = DEFAULT_LEAGUE;
+  if(!fixtures) fixtures = DEFAULT_FIXTURES;
 
   // Auto-sort by points desc, then GD
   var sorted = league.slice().sort(function(a,b){
