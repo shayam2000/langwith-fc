@@ -1,4 +1,12 @@
-<!DOCTYPE html>
+const DEFAULT_OPPONENTS = [
+  'MANDEM FC',
+  'FC Bobyor LDN',
+  'EY 7s',
+  'BTS FC',
+  'Soho Galácticos FC',
+  'Quebrada FC',
+  'Bowcats FC',
+];<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -471,7 +479,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
 <div class="container">
   <div class="section-head"><h2 class="section-title">League & Fixtures</h2><span class="section-tag">Division</span></div>
   <div class="league-card">
-    <div class="league-header"><span style="font-size:20px;">🏆</span><h3>League Table</h3><span style="font-size:12px;color:var(--muted);margin-left:auto;">After 9 rounds</span></div>
+    <div class="league-header"><span style="font-size:20px;">🏆</span><h3>League Table</h3><span style="font-size:12px;color:var(--muted);margin-left:auto;">After 4 rounds</span></div>
     <div class="league-row league-head" style="border-top:none;"><div>#</div><div>Team</div><div>P</div><div>W</div><div>D</div><div>L</div><div>GF</div><div>GA</div><div>GD</div><div>Pts</div></div>
     <div id="league-table-body"></div>
   </div>
@@ -792,7 +800,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
       <span class="result-goals">⚽ Joshua, Kacper</span><span class="result-pill pill-l">L</span>
     </div>
   <div class="section-head" style="margin-top:40px;"><h2 class="section-title">Final League Table</h2></div>
-  <div class="league-card"><div class="league-header"><span style="font-size:20px;">🏆</span><h3 style="font-family:var(--font-display);font-size:22px;">Final Standings — Season 2026 Spring</h3><span style="font-size:12px;color:var(--muted);margin-left:auto;">After 13 rounds</span></div><div class="league-row league-head" style="border-top:none;"><div>#</div><div>Team</div><div>P</div><div>W</div><div>D</div><div>L</div><div>GF</div><div>GA</div><div>GD</div><div>Pts</div></div><div class="league-row"><span class="pos-num">1</span><span style="">Quebrada FC</span><span>13</span><span>12</span><span>1</span><span>0</span><span>97</span><span>35</span><span style="color:#4ade80">+62</span><span class="pts-badge">37</span></div><div class="league-row"><span class="pos-num">2</span><span style="">MANDEM FC</span><span>13</span><span>10</span><span>0</span><span>3</span><span>68</span><span>30</span><span style="color:#4ade80">+38</span><span class="pts-badge">30</span></div><div class="league-row"><span class="pos-num">3</span><span style="">FC Bobyor LDN</span><span>13</span><span>9</span><span>1</span><span>3</span><span>82</span><span>40</span><span style="color:#4ade80">+42</span><span class="pts-badge">28</span></div><div class="league-row"><span class="pos-num">4</span><span style="">Bowcats FC</span><span>13</span><span>9</span><span>0</span><span>4</span><span>84</span><span>49</span><span style="color:#4ade80">+35</span><span class="pts-badge">27</span></div><div class="league-row us-row"><span class="pos-num">5</span><span style="color:var(--gold);font-weight:600">LANGWITH FC</span><span>13</span><span>6</span><span>0</span><span>7</span><span>44</span><span>69</span><span style="color:#f87171">-25</span><span class="pts-badge">18</span></div><div class="league-row"><span class="pos-num">6</span><span style="">Net Six and Chill</span><span>13</span><span>2</span><span>0</span><span>11</span><span>51</span><span>92</span><span style="color:#f87171">-41</span><span class="pts-badge">6</span></div><div class="league-row"><span class="pos-num">7</span><span style="">Who's Out 2.0 DC</span><span>13</span><span>2</span><span>0</span><span>11</span><span>34</span><span>102</span><span style="color:#f87171">-68</span><span class="pts-badge">6</span></div><div class="league-row"><span class="pos-num">8</span><span style="">Soho Galácticos FC</span><span>13</span><span>1</span><span>0</span><span>12</span><span>36</span><span>79</span><span style="color:#f87171">-43</span><span class="pts-badge">3</span></div></div>
+  <div class="league-card"><div class="league-header"><span style="font-size:20px;">🏆</span><h3 style="font-family:var(--font-display);font-size:22px;">Final Standings — Season 2026 Spring</h3><span style="font-size:12px;color:var(--muted);margin-left:auto;">After 4 rounds</span></div><div class="league-row league-head" style="border-top:none;"><div>#</div><div>Team</div><div>P</div><div>W</div><div>D</div><div>L</div><div>GF</div><div>GA</div><div>GD</div><div>Pts</div></div><div class="league-row"><span class="pos-num">1</span><span style="">Quebrada FC</span><span>13</span><span>12</span><span>1</span><span>0</span><span>97</span><span>35</span><span style="color:#4ade80">+62</span><span class="pts-badge">37</span></div><div class="league-row"><span class="pos-num">2</span><span style="">MANDEM FC</span><span>13</span><span>10</span><span>0</span><span>3</span><span>68</span><span>30</span><span style="color:#4ade80">+38</span><span class="pts-badge">30</span></div><div class="league-row"><span class="pos-num">3</span><span style="">FC Bobyor LDN</span><span>13</span><span>9</span><span>1</span><span>3</span><span>82</span><span>40</span><span style="color:#4ade80">+42</span><span class="pts-badge">28</span></div><div class="league-row"><span class="pos-num">4</span><span style="">Bowcats FC</span><span>13</span><span>9</span><span>0</span><span>4</span><span>84</span><span>49</span><span style="color:#4ade80">+35</span><span class="pts-badge">27</span></div><div class="league-row us-row"><span class="pos-num">5</span><span style="color:var(--gold);font-weight:600">LANGWITH FC</span><span>13</span><span>6</span><span>0</span><span>7</span><span>44</span><span>69</span><span style="color:#f87171">-25</span><span class="pts-badge">18</span></div><div class="league-row"><span class="pos-num">6</span><span style="">Net Six and Chill</span><span>13</span><span>2</span><span>0</span><span>11</span><span>51</span><span>92</span><span style="color:#f87171">-41</span><span class="pts-badge">6</span></div><div class="league-row"><span class="pos-num">7</span><span style="">Who's Out 2.0 DC</span><span>13</span><span>2</span><span>0</span><span>11</span><span>34</span><span>102</span><span style="color:#f87171">-68</span><span class="pts-badge">6</span></div><div class="league-row"><span class="pos-num">8</span><span style="">Soho Galácticos FC</span><span>13</span><span>1</span><span>0</span><span>12</span><span>36</span><span>79</span><span style="color:#f87171">-43</span><span class="pts-badge">3</span></div></div>
 
 </div>
 </div>
@@ -1026,6 +1034,12 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
       ⚠️ Old season data detected. <button class="btn btn-red" style="padding:4px 12px;font-size:12px;margin-left:8px;" onclick="clearOldSeason()">Clear old data &amp; start Season 2026 Fall</button>
     </div>
 
+    <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:12px 16px;margin-top:16px;font-size:13px;color:#a5b4fc;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      🔄 Push latest league table &amp; fixtures to everyone:
+      <button class="btn" style="background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);padding:4px 14px;font-size:12px;" onclick="resetLeagueAndFixtures()">Update league &amp; fixtures</button>
+      <span id="lf-reset-msg" style="font-size:12px;display:none;color:#4ade80;"></span>
+    </div>
+
   </div>
 </div>
 </div>
@@ -1149,18 +1163,27 @@ const DEFAULT_WEEKS = [
 // League + fixtures now live in STATE (Firebase) so admin can update them live
 // League + fixtures now live in STATE (Firebase) so admin can update them live
 const DEFAULT_LEAGUE = [
-  {pos:1,team:'LANGWITH FC',   p:1,w:1,d:0,l:0,gf:0,ga:0,gd:0,pts:3,us:true},
-  {pos:2,team:'Team 2',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
-  {pos:3,team:'Team 3',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
-  {pos:4,team:'Team 4',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
-  {pos:5,team:'Team 5',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
-  {pos:6,team:'Team 6',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
-  {pos:7,team:'Team 7',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
-  {pos:8,team:'Team 8',        p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,us:false},
+  {pos:1,team:'MANDEM FC',          p:4,w:4,d:0,l:0,gf:19,ga:5, gd:14, pts:12,us:false},
+  {pos:2,team:'FC Bobyor LDN',      p:4,w:4,d:0,l:0,gf:26,ga:17,gd:9,  pts:12,us:false},
+  {pos:3,team:'EY 7s',              p:4,w:3,d:0,l:1,gf:13,ga:9, gd:4,  pts:9, us:false},
+  {pos:4,team:'LANGWITH FC',        p:4,w:2,d:0,l:2,gf:15,ga:14,gd:1,  pts:6, us:true},
+  {pos:5,team:'BTS FC',             p:2,w:1,d:0,l:1,gf:4, ga:8, gd:-4, pts:3, us:false},
+  {pos:6,team:'Soho Galácticos FC', p:4,w:1,d:0,l:3,gf:10,ga:15,gd:-5, pts:3, us:false},
+  {pos:7,team:'Quebrada FC',        p:4,w:0,d:1,l:3,gf:11,ga:15,gd:-4, pts:1, us:false},
+  {pos:8,team:'Bowcats FC',         p:4,w:0,d:1,l:3,gf:16,ga:21,gd:-5, pts:1, us:false},
 ];
 
 const DEFAULT_FIXTURES = [
-  // Add upcoming fixtures via Admin → League table editor
+  {date:'03 Sep',opp:'Soho Galácticos FC',ha:'Home',time:'20:00'},
+  {date:'10 Sep',opp:'FC Bobyor LDN',     ha:'Away',time:'20:45'},
+  {date:'17 Sep',opp:'Quebrada FC',       ha:'Home',time:'20:00'},
+  {date:'24 Sep',opp:'BTS FC',            ha:'Away',time:'20:45'},
+  {date:'01 Oct',opp:'Bowcats FC',        ha:'Home',time:'18:30'},
+  {date:'08 Oct',opp:'EY 7s',            ha:'Away',time:'20:00'},
+  {date:'15 Oct',opp:'MANDEM FC',         ha:'Home',time:'20:00'},
+  {date:'22 Oct',opp:'Soho Galácticos FC',ha:'Away',time:'20:00'},
+  {date:'29 Oct',opp:'FC Bobyor LDN',     ha:'Home',time:'20:00'},
+  {date:'05 Nov',opp:'Quebrada FC',       ha:'Away',time:'20:00'},
 ];
 
 
@@ -1204,7 +1227,7 @@ function loadState(){
   if(!FIREBASE_CONFIGURED){
     // ── OFFLINE MODE: use localStorage ──────────────────────────────────────
     try{
-      var s = localStorage.getItem('lfc_state_s2');
+      var s = localStorage.getItem('lfc_state_s3');
       STATE = s ? JSON.parse(s) : {
         players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
         weeks:   JSON.parse(JSON.stringify(DEFAULT_WEEKS))
@@ -1267,7 +1290,7 @@ function loadState(){
   }).catch(function(err){
     console.error('Firebase error:', err);
     // Fallback to localStorage on error
-    try{ var s=localStorage.getItem('lfc_state_s2'); if(s) STATE=JSON.parse(s); } catch(e){}
+    try{ var s=localStorage.getItem('lfc_state_s3'); if(s) STATE=JSON.parse(s); } catch(e){}
     if(!STATE.players) STATE = {
       players: JSON.parse(JSON.stringify(DEFAULT_PLAYERS)),
       weeks:   JSON.parse(JSON.stringify(DEFAULT_WEEKS))
@@ -1282,7 +1305,7 @@ function saveState(){
   if(FIREBASE_CONFIGURED && STATE_REF){
     STATE_REF.set(STATE).catch(function(e){ console.error('Firebase save failed:', e); });
   } else {
-    try{ localStorage.setItem('lfc_state_s2', JSON.stringify(STATE)); } catch(e){}
+    try{ localStorage.setItem('lfc_state_s3', JSON.stringify(STATE)); } catch(e){}
   }
 }
 
@@ -1877,6 +1900,19 @@ function saveGoalsMotm(){
     msg.style.display='block';
     setTimeout(function(){ msg.style.display='none'; }, 3000);
   }
+}
+
+function resetLeagueAndFixtures(){
+  STATE.league   = JSON.parse(JSON.stringify(DEFAULT_LEAGUE));
+  STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
+  STATE.opponents = JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
+  saveState();
+  renderLeague();
+  renderLeagueEditor();
+  renderOpponentList();
+  populateOppDropdown();
+  var msg = document.getElementById('lf-reset-msg');
+  if(msg){ msg.textContent='League & fixtures updated ✓'; msg.style.display='inline'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
 }
 
 function clearOldSeason(){
