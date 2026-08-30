@@ -1153,7 +1153,7 @@ const DEFAULT_FIXTURES = [
 // ══════════════════════════════════════════════
 const ADMIN_PIN = '1886';
 let isAdmin = false;
-let STATE = {players:[], weeks:[]};
+let STATE = {players:[], weeks:[], league:[], fixtures:[], opponents:[]};
 let sortCol='points', sortDir=1;
 let chartInstances = {};
 let editWeekIdx = -1;
@@ -1209,6 +1209,7 @@ function loadState(){
       if(!STATE.fixtures ||!STATE.fixtures.length) STATE.fixtures = JSON.parse(JSON.stringify(DEFAULT_FIXTURES));
       if(!STATE.opponents||!STATE.opponents.length) STATE.opponents= JSON.parse(JSON.stringify(DEFAULT_OPPONENTS));
       renderAll();
+      if(isAdmin){ renderAdmin(); renderWeekTracker(); }
     } else {
       // Firebase empty or stale — push our defaults to it
       STATE_REF.set(STATE).catch(function(e){ console.warn('Firebase write failed:', e); });
@@ -2427,9 +2428,7 @@ function closeLightbox(e){
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLightbox(); });
 
-// Render immediately from defaults — Firebase updates after
-renderAll();
-calcSim();
+// loadState seeds STATE from defaults then tries Firebase
 loadState();
 </script>
 </body>
