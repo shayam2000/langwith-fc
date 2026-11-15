@@ -438,6 +438,11 @@ option{background:#1c2333;}
 .bd-big{font-family:var(--font-display);font-size:64px;line-height:1;color:var(--gold)}
 .bd-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:6px 0 14px}
 .bd-bar>i{display:block;height:100%;background:linear-gradient(90deg,#f87171,#f5c842,#4ade80)}
+.card-key{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;margin:-12px 0 34px;font-size:13px}
+.card-key-title{font-weight:700;margin-bottom:8px}
+.card-key-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 18px}
+.card-key-grid b{display:inline-block;min-width:42px;color:var(--gold);font-family:var(--font-display);font-size:16px;letter-spacing:.04em}
+.card-key-note{margin-top:8px;color:var(--muted);font-size:12px}
 .archive-banner{background:linear-gradient(135deg,rgba(245,200,66,0.08),rgba(255,255,255,0.03));border:1px solid rgba(245,200,66,0.2);border-radius:var(--radius);padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
 .archive-banner-icon{font-size:36px;}
 .archive-banner-title{font-family:var(--font-display);font-size:28px;color:var(--gold);}
@@ -522,6 +527,18 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
   <div class="stat-grid" id="stats-summary"></div>
   <div class="section-head top-cards-head"><h3 class="section-title" style="font-size:22px;">🃏 Top players — live cards</h3><span class="section-tag">Tap a card or the 🃏 icon in the table</span></div>
   <div class="top-cards" id="top-cards"></div>
+  <div class="card-key">
+    <div class="card-key-title">📖 Card key</div>
+    <div class="card-key-grid">
+      <div><b>GLS</b> Scoring — goals per game</div>
+      <div><b>MOM</b> Man of the match — how often</div>
+      <div><b>WIN</b> How often we win when you play</div>
+      <div><b>APP</b> How often you turn up</div>
+      <div><b>DEF</b> Defence — fewer goals let in when you play</div>
+      <div><b>PPG</b> Points per game</div>
+    </div>
+    <div class="card-key-note">Every number is a score out of 99.</div>
+  </div>
   <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;">
     <select class="sel" id="pos-filter" onchange="renderStatsTable()">
       <option value="">All positions</option>
@@ -2528,12 +2545,13 @@ function lfcMetrics(){
   rows.forEach(function(r){r.adj=(r.cPts+avgPpa*K)/(r.cApps+K);});
   var adjs=rows.map(function(r){return r.adj;}), amin=Math.min.apply(null,adjs), amax=Math.max.apply(null,adjs);
   var ptsMax=Math.max.apply(null,[1].concat(rows.map(function(r){return r.cPts;})));
+  var gas=rows.filter(function(r){return r.gaAvg!=null;}).map(function(r){return r.gaAvg;}), gMin=Math.min.apply(null,gas), gMax=Math.max.apply(null,gas);
   var ppaMax=Math.max.apply(null,[0.01].concat(rows.map(function(r){return r.ppa;})));
   rows.forEach(function(r){
     var a=amax>amin?(r.adj-amin)/(amax-amin):0.5, b=r.cPts/ptsMax;
     r.ovr=Math.round(55+40*(0.6*a+0.4*b));
     r.attr={GLS:clampA(35+r.gpa*130),MOM:clampA(35+(r.cApps?r.cMotm/r.cApps:0)*160),WIN:clampA(30+(r.winRate==null?0.5:r.winRate)*70),
-            APP:clampA(30+r.att*70),DEF:clampA(r.gaAvg==null?50:99-r.gaAvg*13),PPG:clampA(30+(r.ppa/ppaMax)*69)};
+            APP:clampA(30+r.att*70),DEF:clampA(r.gaAvg==null?50:(gMax>gMin?45+54*(gMax-r.gaAvg)/(gMax-gMin):70)),PPG:clampA(30+(r.ppa/ppaMax)*69)};
   });
   var sorted=rows.slice().sort(function(a,b){return b.pts-a.pts;});
   rows.forEach(function(r){r.rank=1+sorted.filter(function(o){return o.pts>r.pts;}).length;
