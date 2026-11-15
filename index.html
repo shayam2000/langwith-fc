@@ -1126,13 +1126,6 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:
           <label>Opponent</label>
           <select class="sel" id="aw-opp-sel" style="width:100%;" onchange="syncOppField()">
             <option value="">— Select —</option>
-            <option>MANDEM FC</option>
-            <option>FC Bobyor LDN</option>
-            <option>EY 7s</option>
-            <option>BTS FC</option>
-            <option>Soho Galácticos FC</option>
-            <option>Quebrada FC</option>
-            <option>Bowcats FC</option>
             <option value="__custom__">Other…</option>
           </select>
         </div>
@@ -1799,7 +1792,7 @@ function loadWeekToForm(){
   setV('aw-oscore', w.oScore);
   setV('aw-fee',    w.fee);
 
-  var knownOpps=['Quebrada FC','Bowcats FC','MANDEM FC','FC Bobyor LDN','Net Six and Chill','Soho Galácticos FC',"Who's Out 2.0 DC"];
+  var knownOpps=Array.prototype.map.call(document.getElementById('aw-opp-sel').options,function(o){return o.value;}).filter(function(v){return v&&v!=='__custom__';});
   var oppSel = document.getElementById('aw-opp-sel');
   var og     = document.getElementById('opp-custom-group');
   if(knownOpps.indexOf(w.opp)>=0){
@@ -2278,6 +2271,17 @@ function renderResults(){
 // ══════════════════════════════════════════════
 // RENDER: LEAGUE
 // ══════════════════════════════════════════════
+function renderOppOptions(){
+  var sel=document.getElementById('aw-opp-sel'); if(!sel) return;
+  var cur=sel.value, names=[];
+  function add(n){ n=(n||'').trim(); if(n&&!/langwith/i.test(n)&&names.indexOf(n)<0) names.push(n); }
+  (STATE.league||[]).forEach(function(t){ if(!t.us) add(t.team); });
+  (STATE.fixtures||[]).forEach(function(f){ add(f.opp); });
+  sel.innerHTML='';
+  function opt(v,t){var o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);}
+  opt('','— Select —'); names.forEach(function(n){opt(n,n);}); opt('__custom__','Other…');
+  if(cur) sel.value=cur;
+}
 function renderLeague(){
   var league   = (STATE.league   && STATE.league.length)   ? STATE.league   : DEFAULT_LEAGUE;
   var fixtures = (STATE.fixtures && STATE.fixtures.length) ? STATE.fixtures : DEFAULT_FIXTURES;
@@ -2300,6 +2304,7 @@ function renderLeague(){
     '</div>';
   }).join('');
 
+  renderOppOptions();
   document.getElementById('fixtures-list').innerHTML = !fixtures.length ? '<div style="padding:20px;color:var(--muted);font-size:13px;">No fixtures added yet.</div>' : fixtures.map(function(f){
     return '<div class="fixture-card">'+
       '<span class="fix-date">'+f.date+'</span>'+
