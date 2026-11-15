@@ -319,6 +319,7 @@ option{background:#1c2333;}
 .gm-week-score{font-size:9px;font-weight:700;}
 .gm-week-score.w{color:#4ade80;}
 .gm-week-score.l{color:#f87171;}
+.gm-week-score.d{color:#9ca3af;}
 
 /* LEAGUE EDITOR */
 .league-editor-row{display:grid;grid-template-columns:28px 1fr 52px 44px 44px 44px 52px 52px 60px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);}
@@ -467,8 +468,8 @@ option{background:#1c2333;}
 .gallery-lightbox-close:hover{color:#fff;}
 
 
-.pill-d{background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);}
-.att-week-lbl .wl.d{background:rgba(251,191,36,0.15);color:#fbbf24;}
+.pill-d{background:rgba(156,163,175,0.14);color:#9ca3af;border:1px solid rgba(156,163,175,0.3);}
+.att-week-lbl .wl.d{background:rgba(156,163,175,0.16);color:#9ca3af;}
 
 
 footer{border-top:1px solid var(--line);margin-top:48px;padding:24px;text-align:center;font-size:12px;color:var(--muted);}
@@ -1986,7 +1987,7 @@ function renderGoalsMotmGrid(){
     var th = document.createElement('th');
     th.innerHTML = '<div class="gm-week-head">'+
       '<span>'+fmtDate(w.date)+'</span>'+
-      '<span class="gm-week-score '+(win?'w':'l')+'">'+w.lScore+'–'+w.oScore+'</span>'+
+      '<span class="gm-week-score '+resOf(w).toLowerCase()+'">'+w.lScore+'–'+w.oScore+'</span>'+
     '</div>';
     hrow.appendChild(th);
   });
@@ -2077,7 +2078,7 @@ function renderAdmin(){
   var opts = '<option value="">— New week —</option>';
   STATE.weeks.forEach(function(w,i){
     var win = w.lScore > w.oScore;
-    opts += '<option value="'+i+'">'+fmtDate(w.date)+' vs '+w.opp+' ('+w.lScore+'–'+w.oScore+') '+(win?'W':'L')+'</option>';
+    opts += '<option value="'+i+'">'+fmtDate(w.date)+' vs '+w.opp+' ('+w.lScore+'–'+w.oScore+') '+resOf(w)+'</option>';
   });
   sel.innerHTML = opts;
   if(curVal) sel.value = curVal;
@@ -2126,7 +2127,7 @@ function renderWeekTracker(){
     html += '<div class="pay-week-card">';
     html += '<div class="pay-week-hdr" onclick="toggleWkBody('+i+')">';
     html += '<span class="pay-wdate">'+fmtDate(w.date)+'</span>';
-    html += '<span class="pay-wscore">'+w.lScore+'–'+w.oScore+' vs '+w.opp+' <span style="color:'+(win?'#4ade80':'#f87171')+';">'+(win?'W':'L')+'</span> · £'+w.fee.toFixed(2)+'/player</span>';
+    html += '<span class="pay-wscore">'+w.lScore+'–'+w.oScore+' vs '+w.opp+' <span style="color:'+RES_COL[resOf(w)]+';">'+resOf(w)+'</span> · £'+w.fee.toFixed(2)+'/player</span>';
     html += '<span class="pay-wsummary"><span class="pc">\u2713 '+paid+' paid</span> · <span class="pu">\u2717 '+(playing.length-paid)+' outstanding</span></span>';
     html += '</div>';
     html += '<div class="pay-wbody" id="wkb-'+i+'">';
@@ -2236,14 +2237,18 @@ function renderStatsSummary(){
 // ══════════════════════════════════════════════
 // RENDER: RESULTS
 // ══════════════════════════════════════════════
+function resOf(w){return w.lScore>w.oScore?'W':w.lScore<w.oScore?'L':'D';}
+var RES_COL={W:'#4ade80',L:'#f87171',D:'#9ca3af'};
 function renderResults(){
   const wins=STATE.weeks.filter(w=>w.lScore>w.oScore).length;
   const losses=STATE.weeks.filter(w=>w.lScore<w.oScore).length;
   const gf=STATE.weeks.reduce((a,w)=>a+w.lScore,0);
   const ga=STATE.weeks.reduce((a,w)=>a+w.oScore,0);
-  document.getElementById('results-tag').textContent=`W${wins} L${losses}`;
+  const draws=STATE.weeks.length-wins-losses;
+  document.getElementById('results-tag').textContent=`W${wins} D${draws} L${losses}`;
   document.getElementById('results-summary').innerHTML=`
     <div class="stat-card"><div class="stat-label">Wins</div><div class="stat-value" style="color:#4ade80">${wins}</div></div>
+    <div class="stat-card"><div class="stat-label">Draws</div><div class="stat-value" style="color:#9ca3af">${draws}</div></div>
     <div class="stat-card"><div class="stat-label">Losses</div><div class="stat-value" style="color:#f87171">${losses}</div></div>
     <div class="stat-card"><div class="stat-label">Goals scored</div><div class="stat-value gold">${gf}</div></div>
     <div class="stat-card"><div class="stat-label">Goals conceded</div><div class="stat-value">${ga}</div></div>
@@ -2263,7 +2268,7 @@ function renderResults(){
       </div>
       ${motmPlayers.length?`<span class="motm-chip">⭐ ${motmPlayers.join(', ')}</span>`:''}
       ${scorers.length?`<span class="result-goals">⚽ ${scorers.join(', ')}</span>`:''}
-      <span class="result-pill ${win?'pill-w':'pill-l'}">${win?'W':'L'}</span>
+      <span class="result-pill pill-${resOf(w).toLowerCase()}">${resOf(w)}</span>
     </div>`;
   }).join('');
 }
@@ -2331,7 +2336,7 @@ function renderSquad(){
   let gridHTML=`<div class="att-grid"><div class="att-header-row"><div class="att-corner">Player</div>`;
   weeks.forEach(w=>{
     const win=w.lScore>w.oScore;
-    gridHTML+=`<div class="att-week-lbl">${fmtDate(w.date)}<span class="score">${w.lScore}–${w.oScore}</span><span class="wl ${win?'w':'l'}">${win?'W':'L'}</span></div>`;
+    gridHTML+=`<div class="att-week-lbl">${fmtDate(w.date)}<span class="score">${w.lScore}–${w.oScore}</span><span class="wl ${resOf(w).toLowerCase()}">${resOf(w)}</span></div>`;
   });
   gridHTML+='</div>';
   players.forEach(p=>{
@@ -2360,8 +2365,8 @@ function renderSquad(){
       <div class="roster-hdr">
         <span class="roster-date">${fmtDate(w.date)}</span>
         <span class="roster-opp">vs ${w.opp}</span>
-        <span class="roster-score" style="color:${win?'#4ade80':'#f87171'}">${w.lScore}–${w.oScore}</span>
-        <span class="result-pill ${win?'pill-w':'pill-l'}">${win?'WIN':'LOSS'}</span>
+        <span class="roster-score" style="color:${RES_COL[resOf(w)]}">${w.lScore}–${w.oScore}</span>
+        <span class="result-pill pill-${resOf(w).toLowerCase()}">${{W:'WIN',L:'LOSS',D:'DRAW'}[resOf(w)]}</span>
         ${motms.length?`<span class="motm-chip">⭐ ${motms.map(x=>x.name).join(', ')}</span>`:''}
         ${scorers.length?`<span class="result-goals">⚽ ${scorers.map(x=>`${x.name}${x.goals>1?' ('+x.goals+')':''}`).join(', ')}</span>`:''}
       </div>
@@ -2453,7 +2458,8 @@ function renderCharts(){
        scales:{x:{ticks:{color:'#718096',font:{size:10}}},y:{ticks:{color:'#718096'},grid:{color:'rgba(255,255,255,0.05)'}}}});
 
   const wins=weeks.filter(w=>w.lScore>w.oScore).length;
-  mkChart('wl-chart','doughnut',{labels:['Wins','Losses'],datasets:[{data:[wins,weeks.length-wins],backgroundColor:['#1baf7a','#e34948'],borderWidth:0,hoverOffset:4}]},
+  const draws=weeks.filter(w=>w.lScore===w.oScore).length;
+  mkChart('wl-chart','doughnut',{labels:['Wins','Draws','Losses'],datasets:[{data:[wins,draws,weeks.length-wins-draws],backgroundColor:['#1baf7a','#9ca3af','#e34948'],borderWidth:0,hoverOffset:4}]},
     {cutout:'65%',plugins:{legend:{display:true,labels:{color:'#718096',font:{size:11},usePointStyle:true}}}});
 
   // Squad page charts
@@ -2464,7 +2470,7 @@ function renderCharts(){
 
   mkChart('squad-size-chart','bar',{
     labels:weeks.map(w=>fmtDate(w.date)),
-    datasets:[{data:weeks.map(w=>w.players.filter(p=>!p.dnp).length),backgroundColor:weeks.map(w=>w.lScore>w.oScore?'rgba(74,222,128,0.6)':'rgba(248,113,113,0.5)'),borderRadius:4}]
+    datasets:[{data:weeks.map(w=>w.players.filter(p=>!p.dnp).length),backgroundColor:weeks.map(w=>w.lScore>w.oScore?'rgba(74,222,128,0.6)':w.lScore===w.oScore?'rgba(156,163,175,0.6)':'rgba(248,113,113,0.5)'),borderRadius:4}]
   },{scales:{x:{ticks:{color:'#718096',font:{size:10}}},y:{ticks:{color:'#718096',stepSize:1},grid:{color:'rgba(255,255,255,0.05)'}}}});
 }
 
