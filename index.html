@@ -2605,7 +2605,7 @@ function openCard(name){
     'Team win rate when playing: <b>'+(r.winRate==null?'—':Math.round(r.winRate*100)+'%')+'</b><br>'+
     'Avg goals conceded when playing: <b>'+(r.gaAvg==null?'—':r.gaAvg.toFixed(1))+'</b><br>'+
     (best?'Best partner: <b>'+esc(best.n)+'</b> ('+Math.round(best.wr*100)+'% wins in '+best.t+' games)<br>':'')+
-    '<span style="color:var(--muted);font-size:11px;">GLS goals/app · MOM MOTM rate · WIN win rate · APP attendance · DEF goals conceded · PPG points per game. Overall is based on career data and updates live as results are entered.</span></div>';
+    '</div>';
   var m=document.getElementById('card-modal');
   m.innerHTML='<button class="cm-close" onclick="closeCard()">×</button><div class="cm-body">'+cardHTML(r,false)+info+'</div>';
   m.classList.add('on');
